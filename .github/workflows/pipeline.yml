@@ -1,0 +1,42 @@
+name: Deployment pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+
+jobs:
+  simple_deployment_pipeline:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # 1. Install root/backend dependencies
+      - name: Install backend dependencies
+        run: npm install
+
+      # 2. Install frontend dependencies and build production assets
+      - name: Install frontend dependencies and build
+        run: |
+          cd frontend
+          npm install
+          npm run build
+
+      # 3. Optional: Linting check if configured in package.json
+      - name: Lint code
+        run: npm run lint
+        continue-on-error: true
+
+      # 4. Trigger deployment hook (if push is to main and message doesn't contain #skip)
+      - name: Trigger deployment
+        if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
+        run: |
+          # If you are using a Render deploy hook URL, you can put your curl command here:
+          # curl -s -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+          echo "Deployment hook placeholder - configure your deployment service hook here."

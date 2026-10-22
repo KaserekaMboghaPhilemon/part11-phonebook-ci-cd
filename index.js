@@ -10,7 +10,7 @@ const app = express()
 // --- Middleware ---
 app.use(cors())
 app.use(express.json())
-app.use(express.static('dist'))
+app.use(express.static(path.join(__dirname, 'dist')))
 
 // Morgan with a custom :body token (FSO standard)
 morgan.token('body', (req) => JSON.stringify(req.body))
